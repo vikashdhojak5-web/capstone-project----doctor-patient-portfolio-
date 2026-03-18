@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Patient Doctor Portal</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #eff7ff;
+        margin: 0;
+    }
+
+    .container {
+        width: 350px;
+        margin: 80px auto;
+        background: rgb(208, 203, 203);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        text-align: center;
+    }
+
+    input, select, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #eed2d2;
+    }
+
+    button {
+        background: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    button:hover {
+        background: #0153ab;
+    }
+
+    .dashboard {
+        display: none;
+        padding: 20px;
+    }
+
+    .card {
+        background: white;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .logout {
+        float: right;
+        background: rgb(245, 2, 2);
+        
+    }
+</style>
+</head>
+<body>
+
+<!-- LOGIN PORTAL OF PATIENT AND DOCTOR -->
+<div class="container" id="loginPage">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Enter username">
+    <input type ="number" id = "IDENTITY" placeholder = "ADHHAR NUMBER">
+    <input type ="number" id = " Mobile number" placeholder="Mobile number">
+    <select id="role">
+        <option value="patient">Patient</option>
+        <option value="doctor">Doctor</option>
+        
+    </select>
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- CODE FOR PATIENT DASHBOARD  -->
+<div class="dashboard" id="patientDash">
+    <button class="logout" onclick="logout()">Logout</button>
+    <h2>Patient Dashboard</h2>
+
+    <div class="card">
+        <h3>Book Appointment</h3>
+        <input type="text" id="symptoms" placeholder="Enter symptoms">
+      <input type="file" id="imageUpload" accept="image/*" onchange="previewImage()">
+        <button onclick="bookAppointment()">Book</button>
+    </div>
+
+    <div class="card">
+        <h3>Your Progress</h3>
+        <ul id="patientProgress"></ul>
+    </div>
+</div>
+
+<!-- DOCTOR DASHBOARD  -->
+<div class="dashboard" id="doctorDash">
+    <button class="logout" onclick="logout()">Logout</button>
+    <h2>Doctor Dashboard</h2>
+
+    <div class="card">
+        <h3>Patient Requests</h3>
+        <ul id="patientList"></ul>
+    </div>
+</div>
+
+<script>
+let currentUser = "";
+let role = "";
+let patients = [];
+
+function login() {
+    currentUser = document.getElementById("username").value;
+    role = document.getElementById("role").value;
+
+    if (!currentUser) {
+        alert("Enter username");
+        return;
+    }
+
+    document.getElementById("loginPage").style.display = "none";
+
+    if (role === "patient") {
+        document.getElementById("patientDash").style.display = "block";
+        loadPatientProgress();
+    } else {
+        document.getElementById("doctorDash").style.display = "block";
+        loadPatients();
+    }
+}
+
+function logout() {
+    location.reload();
+}
+
+function bookAppointment() {
+    let symptoms = document.getElementById("symptoms").value;
+
+    if (!symptoms) {
+        alert("Enter symptoms");
+        return;
+    }
+
+    let patientData = {
+        name: currentUser,
+        symptoms: symptoms,
+        progress: "Waiting for doctor"
+    };
+
+    patients.push(patientData);
+    alert("Appointment booked!");
+    document.getElementById("symptoms").value = "";
+}
+
+function loadPatients() {
+    let list = document.getElementById("patientList");
+    list.innerHTML = "";
+
+    patients.forEach((p, index) => {
+        let li = document.createElement("li");
+        li.innerHTML = `
+            <b>${p.name}</b> - ${p.symptoms}
+            <br>
+            Status: ${p.progress}
+            <br>
+            <button onclick="updateProgress(${index})">Update</button>
+        `;
+        list.appendChild(li);
+    });
+}
+
+function updateProgress(index) {
+    let update = prompt("Enter progress update:");
+    if (update) {
+        patients[index].progress = update;
+        loadPatients();
+    }
+}
+
+function loadPatientProgress() {
+    let list = document.getElementById("patientProgress");
+    list.innerHTML = "";
+
+    patients.forEach(p => {
+        if (p.name === currentUser) {
+            let li = document.createElement("li");
+            li.innerText = p.progress;
+            list.appendChild(li);
+        }
+    });
+}
+</script>
+
+</body>
+</html>
